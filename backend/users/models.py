@@ -4,9 +4,10 @@ from django.db import models
 
 
 class UserManager(BaseUserManager):
+    use_in_migrations = True
 
     # create_user создает нового пользователя с адресом электронной почты или номером телефона и паролем
-    def create_user(self, email=None, phone=None, password=None):
+    def create_user(self, email, phone, password=None):
         if not email and not phone:
             raise ValueError('Either email or phone must be set')
         user = self.model(
@@ -29,7 +30,7 @@ class UserManager(BaseUserManager):
 # Мы также определяем пользовательскую модель User, которая расширяет класс Django AbstractBaseUser
 # и использует наш собственный UserManager
 class User(AbstractBaseUser, PermissionsMixin):
-    email = models.EmailField(unique=True, null=True)
+    email = models.EmailField(max_length=100, unique=True, null=True)
     phone = models.CharField(max_length=20, unique=True)
     password = models.CharField(max_length=200)
 

@@ -1,6 +1,8 @@
 import os
 from datetime import timedelta
 from pathlib import Path
+
+from django.urls import reverse_lazy
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -36,6 +38,7 @@ INSTALLED_APPS += [
 # apps
 INSTALLED_APPS += [
     'users',
+    'web',
 ]
 
 # Custom user model
@@ -100,6 +103,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+
 ######################
 # LOCALIZATION
 ######################
@@ -107,6 +111,7 @@ LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
+
 
 ######################
 # STATIC AND MEDIA
@@ -116,14 +121,19 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
 
+
 ###########################
 # DJANGO REST FRAMEWORK
 ###########################
 REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'users.authentication.CustomJWTAuthentication',
+    ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ]
 }
+
 
 #######################
 # DJOSER
@@ -137,6 +147,20 @@ DJOSER = {
     'TOKEN_MODEL': None,
 }
 
+AUTH_COOKIE = 'access'
+
+
+######################
+# CORS HEADERS
+######################
+CORS_ALLOWED_ORIGINS = os.environ.get(
+    'CORS_ALLOWED_ORIGINS',
+    'http://localhost:3000,http://127.0.0.1:3000'
+).split(',')
+CORS_ALLOW_CREDENTIALS = True
+
+
+'''
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
@@ -148,7 +172,7 @@ SIMPLE_JWT = {
     'AUDIENCE': None,
     'ISSUER': None,
 
-    'AUTH_HEADER_TYPES': ('Bearer',),
+    'AUTH_HEADER_TYPES': ('JWT',),
     'USER_ID_FIELD': 'id',
     'USER_ID_CLAIM': 'user_id',
 
@@ -161,14 +185,22 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_LIFETIME': timedelta(minutes=1),
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=7),
 }
+'''
 
-# Email settings
+# LOGIN_REDIRECT_URL = reverse_lazy("web:profile")
 
+
+#######################
+# EMAIL
+#######################
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.yandex.ru'
 EMAIL_PORT = 465
 EMAIL_USE_TLS = False
 EMAIL_USE_SSL = True
-
 EMAIL_HOST_USER = 'gapeev.zahar@yandex.ru'
 EMAIL_HOST_PASSWORD = 'cswjhzlsejtdgwee'
 DEFAULT_FROM_EMAIL = 'gapeev.zahar@yandex.ru'
+
+DOMAIN = os.environ['DOMAIN']
+SITE_NAME = "MyDudes"
