@@ -147,7 +147,16 @@ DJOSER = {
     'TOKEN_MODEL': None,
 }
 
+
+######################
+# AUTH COOKIE
+######################
 AUTH_COOKIE = 'access'
+AUTH_COOKIE_MAX_AGE = 60 * 60 * 24
+AUTH_COOKIE_SECURE = os.environ.get('AUTH_COOKIE_SECURE', 'True') == 'True'
+AUTH_COOKIE_HTTP_ONLY = True
+AUTH_COOKIE_PATH = '/'
+AUTH_COOKIE_SAMESITE = 'None'
 
 
 ######################
