@@ -32,6 +32,7 @@ INSTALLED_APPS += [
     'django_filters',
     'drf_yasg',
     'djoser',
+    'social_django',
 
 ]
 
@@ -68,6 +69,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'social_django.context_processors.backends',
             ],
         },
     },
@@ -85,6 +87,23 @@ DATABASES = {
         'PORT': os.environ['POSTGRES_PORT'],
     },
 }
+
+
+#######################
+# EMAIL
+#######################
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.yandex.ru'
+EMAIL_PORT = 465
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True
+EMAIL_HOST_USER = 'gapeev.zahar@yandex.ru'
+EMAIL_HOST_PASSWORD = 'cswjhzlsejtdgwee'
+DEFAULT_FROM_EMAIL = 'gapeev.zahar@yandex.ru'
+
+DOMAIN = os.environ['DOMAIN']
+SITE_NAME = "MyDudes"
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -122,6 +141,13 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
 
 
+# Custom backend
+AUTHENTICATION_BACKENDS = [
+    'social_core.backends.vk.VKOAuth2',              # бекенд авторизации через ВКонтакте
+    'django.contrib.auth.backends.ModelBackend',     # бекенд аутентификации, для авторизации через логин и пароль
+]
+
+
 ###########################
 # DJANGO REST FRAMEWORK
 ###########################
@@ -145,6 +171,7 @@ DJOSER = {
     'USER_CREATE_PASSWORD_RETYPE': True,
     'PASSWORD_RESET_CONFIRM_RETYPE': True,
     'TOKEN_MODEL': None,
+    'SOCIAL_AUTH_ALLOWED_REDIRECT_URIS': os.environ['REDIRECT_URLS'].split(',')
 }
 
 
@@ -158,6 +185,13 @@ AUTH_COOKIE_HTTP_ONLY = True
 AUTH_COOKIE_PATH = '/'
 AUTH_COOKIE_SAMESITE = 'None'
 
+
+SOCIAL_AUTH_VK_OAUTH2_KEY = os.environ['SOCIAL_AUTH_VK_OAUTH2_KEY']
+SOCIAL_AUTH_VK_OAUTH2_SECRET = os.environ['SOCIAL_AUTH_VK_OAUTH2_SECRET']
+SOCIAL_AUTH_VK_OAUTH2_SCOPE = [
+  'phone_number',
+  'email',
+]
 
 ######################
 # CORS HEADERS
@@ -197,19 +231,3 @@ SIMPLE_JWT = {
 '''
 
 # LOGIN_REDIRECT_URL = reverse_lazy("web:profile")
-
-
-#######################
-# EMAIL
-#######################
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.yandex.ru'
-EMAIL_PORT = 465
-EMAIL_USE_TLS = False
-EMAIL_USE_SSL = True
-EMAIL_HOST_USER = 'gapeev.zahar@yandex.ru'
-EMAIL_HOST_PASSWORD = 'cswjhzlsejtdgwee'
-DEFAULT_FROM_EMAIL = 'gapeev.zahar@yandex.ru'
-
-DOMAIN = os.environ['DOMAIN']
-SITE_NAME = "MyDudes"
