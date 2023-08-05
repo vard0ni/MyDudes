@@ -33,12 +33,15 @@ INSTALLED_APPS += [
     'drf_yasg',
     'djoser',
     'social_django',
+    'mptt',
 
 ]
 
 # apps
 INSTALLED_APPS += [
     'users',
+    'profiles',
+
     'web',
 ]
 
