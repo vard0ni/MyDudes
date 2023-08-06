@@ -1,6 +1,9 @@
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
+from django.db.models.signals import post_save
+
+from profiles.models import Profile
 
 
 class UserManager(BaseUserManager):
@@ -51,3 +54,19 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def has_module_perms(self, app_label):
         return True
+
+    def profile(self):
+        profile = Profile.objects.get(user=self)
+
+
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+
+
+def save_user_profile(sender, instance, **kwargs):
+    instance.profile.save()
+
+
+post_save.connect(create_user_profile, sender=User)
+post_save.connect(save_user_profile, sender=User)

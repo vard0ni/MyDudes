@@ -5,7 +5,7 @@ from .models import Profile
 from .serializers import GetUserSerializer, GetUserPublicSerializer
 
 
-class UserNetPublicView(ModelViewSet):
+class UserPublicView(ModelViewSet):
     """ Вывод публичного профиля пользователя
     """
     queryset = Profile.objects.all()
@@ -13,7 +13,7 @@ class UserNetPublicView(ModelViewSet):
     permission_classes = [permissions.AllowAny]
 
 
-class UserNetView(ModelViewSet):
+class UserView(ModelViewSet):
     """ Вывод профиля пользователя
     """
     serializer_class = GetUserSerializer
