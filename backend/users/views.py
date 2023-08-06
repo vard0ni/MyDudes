@@ -1,114 +1,49 @@
-from django.conf import settings
-from rest_framework.views import APIView
+from django.shortcuts import render
+from django.http import JsonResponse
+from users.models import User
+
+from users.serializers import MyTokenObtainPairSerializer, RegisterSerializer
+
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework import generics
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import status
-from djoser.social.views import ProviderAuthView
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
-    TokenVerifyView
-)
+from rest_framework.decorators import api_view, permission_classes
 
 
-class CustomProviderAuthView(ProviderAuthView):
-    def post(self, request, *args, **kwargs):
-        response = super().post(request, *args, **kwargs)
-
-        if response.status_code == 201:
-            access_token = response.data.get('access')
-            refresh_token = response.data.get('refresh')
-
-            response.set_cookie(
-                'access',
-                access_token,
-                max_age=settings.AUTH_COOKIE_MAX_AGE,
-                path=settings.AUTH_COOKIE_PATH,
-                secure=settings.AUTH_COOKIE_SECURE,
-                httponly=settings.AUTH_COOKIE_HTTP_ONLY,
-                samesite=settings.AUTH_COOKIE_SAMESITE
-            )
-            response.set_cookie(
-                'refresh',
-                refresh_token,
-                max_age=settings.AUTH_COOKIE_MAX_AGE,
-                path=settings.AUTH_COOKIE_PATH,
-                secure=settings.AUTH_COOKIE_SECURE,
-                httponly=settings.AUTH_COOKIE_HTTP_ONLY,
-                samesite=settings.AUTH_COOKIE_SAMESITE
-            )
-
-        return response
+class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer
 
 
-class CustomTokenObtainPairView(TokenObtainPairView):
-    def post(self, request, *args, **kwargs):
-        response = super().post(request, *args, **kwargs)
-
-        if response.status_code == 200:
-            access_token = response.data.get('access')
-            refresh_token = response.data.get('refresh')
-
-            response.set_cookie(
-                'access',
-                access_token,
-                max_age=settings.AUTH_COOKIE_MAX_AGE,
-                path=settings.AUTH_COOKIE_PATH,
-                secure=settings.AUTH_COOKIE_SECURE,
-                httponly=settings.AUTH_COOKIE_HTTP_ONLY,
-                samesite=settings.AUTH_COOKIE_SAMESITE
-            )
-            response.set_cookie(
-                'refresh',
-                refresh_token,
-                max_age=settings.AUTH_COOKIE_MAX_AGE,
-                path=settings.AUTH_COOKIE_PATH,
-                secure=settings.AUTH_COOKIE_SECURE,
-                httponly=settings.AUTH_COOKIE_HTTP_ONLY,
-                samesite=settings.AUTH_COOKIE_SAMESITE
-            )
-
-        return response
+class RegisterView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    permission_classes = (AllowAny,)
+    serializer_class = RegisterSerializer
 
 
-class CustomTokenRefreshView(TokenRefreshView):
-    def post(self, request, *args, **kwargs):
-        refresh_token = request.COOKIES.get('refresh')
+# Get All Routes
 
-        if refresh_token:
-            request.data['refresh'] = refresh_token
-
-        response = super().post(request, *args, **kwargs)
-
-        if response.status_code == 200:
-            access_token = response.data.get('access')
-
-            response.set_cookie(
-                'access',
-                access_token,
-                max_age=settings.AUTH_COOKIE_MAX_AGE,
-                path=settings.AUTH_COOKIE_PATH,
-                secure=settings.AUTH_COOKIE_SECURE,
-                httponly=settings.AUTH_COOKIE_HTTP_ONLY,
-                samesite=settings.AUTH_COOKIE_SAMESITE
-            )
-
-        return response
+@api_view(['GET'])
+def getRoutes(request):
+    routes = [
+        '/api/token/',
+        '/api/register/',
+        '/api/token/refresh/'
+    ]
+    return Response(routes)
 
 
-class CustomTokenVerifyView(TokenVerifyView):
-    def post(self, request, *args, **kwargs):
-        access_token = request.COOKIES.get('access')
-
-        if access_token:
-            request.data['token'] = access_token
-
-        return super().post(request, *args, **kwargs)
-
-
-class LogoutView(APIView):
-    def post(self, request, *args, **kwargs):
-        response = Response(status=status.HTTP_204_NO_CONTENT)
-        response.delete_cookie('access')
-        response.delete_cookie('refresh')
-
-        return response
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def testEndPoint(request):
+    if request.method == 'GET':
+        data = f"Congratulation {request.user}, your API just responded to GET request"
+        return Response({'response': data}, status=status.HTTP_200_OK)
+    elif request.method == 'POST':
+        # text = "Hello my dude!"
+        text = request.POST.get("text")
+        data = f'Congratulation your API just responded to POST request with text: {text}'
+        return Response({'response': data}, status=status.HTTP_200_OK)
+    return Response({}, status.HTTP_400_BAD_REQUEST)
