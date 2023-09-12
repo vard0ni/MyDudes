@@ -12,6 +12,7 @@ from django.core.exceptions import ObjectDoesNotExist
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
+        ref_name = 'DjoserUser'
         fields = ('id', 'phone', 'email')
 
 

@@ -5,6 +5,7 @@ from rest_framework.permissions import BasePermission
 class IsMemberGroup(BasePermission):
     """
     Участник группы или администратор
+    Понадобится, когда у нас будут группы
     """
 
     def has_object_permission(self, request, view, obj):
@@ -35,9 +36,12 @@ class IsAuthor(BasePermission):
     """
 
     def has_permission(self, request, view):
+        # Проверяем методы, которые у нас есть,
         if request.method in permissions.SAFE_METHODS:
             return True
         return request.user and request.user.is_authenticated
 
+    # проверяем, чтобы пользователь был авторизован
+    # Выполнять действия над записью, может только автор записи
     def has_object_permission(self, request, view, obj):
         return obj.user == request.user

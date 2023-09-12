@@ -11,14 +11,19 @@ class MixedPermission:
             return [permission() for permission in self.permission_classes]
 
 
+# базовые классы
+
+# объединение MixedPermission с ViewSet
 class MixedPermissionViewSet(MixedPermission, viewsets.ViewSet):
     pass
 
 
+# объединение MixedPermission с GenericViewSet
 class MixedPermissionGenericViewSet(MixedPermission, viewsets.GenericViewSet):
     pass
 
 
+# объединение MixedPermission с GenericViewSet и mixins
 class CreateUpdateDestroy(mixins.CreateModelMixin,
                             mixins.UpdateModelMixin,
                             mixins.DestroyModelMixin,
