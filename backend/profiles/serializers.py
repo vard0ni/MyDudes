@@ -21,7 +21,7 @@ class UserSerializer(serializers.ModelSerializer):
 class GetUserSerializer(serializers.ModelSerializer):
     """ Вывод инфо о user
     """
-    #avatar = serializers.ImageField(read_only=True)
+    # avatar = serializers.ImageField(read_only=True)
     user = UserSerializer()
 
     class Meta:
@@ -32,8 +32,19 @@ class GetUserSerializer(serializers.ModelSerializer):
 class GetUserPublicSerializer(serializers.ModelSerializer):
     """ Вывод публичной инфы о user
     """
-    #user = UserSerializer()
+
+    # user = UserSerializer()
 
     class Meta:
         model = Profile
         fields = ('id', 'first_name', 'last_name', 'avatar', 'birthday', 'gender', 'hobbies', 'verified')
+
+
+class UserByFollowerSerializer(serializers.ModelSerializer):
+    """ Сериализация для подписчиков
+    """
+    avatar = serializers.ImageField(read_only=True)
+
+    class Meta:
+        model = Profile
+        fields = ('id', 'first_name', 'last_name', 'avatar')

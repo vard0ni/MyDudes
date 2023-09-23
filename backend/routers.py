@@ -25,7 +25,7 @@ urlpatterns = [
 
     path('wall/', include('wall.urls')),
     #path('feed/', include('feed.urls')),
-    #path('follower/', include('followers.urls')),
+    path('follower/', include('followers.urls')),
     path('', include('profiles.urls')),
     #path('auth/', include('users.urls')),
 ]
