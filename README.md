@@ -56,7 +56,7 @@
     
 ##### 6) Создать суперюзера
 
-    docker exec -it pysonet_pysonet_back_1 python manage.py createsuperuser
+    docker exec -it <...> python manage.py createsuperuser
                                                         
 ##### 7) Если нужно очистить БД
 
