@@ -1,6 +1,8 @@
 import os
 from datetime import timedelta
 from pathlib import Path
+
+from django.urls import reverse_lazy
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -30,12 +32,19 @@ INSTALLED_APPS += [
     'django_filters',
     'drf_yasg',
     'djoser',
+    'social_django',
+    'mptt',
 
 ]
 
 # apps
 INSTALLED_APPS += [
     'users',
+    'profiles',
+    'wall',
+    'followers',
+
+    'web',
 ]
 
 # Custom user model
@@ -65,6 +74,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'social_django.context_processors.backends',
             ],
         },
     },
@@ -82,6 +92,21 @@ DATABASES = {
         'PORT': os.environ['POSTGRES_PORT'],
     },
 }
+
+#######################
+# EMAIL
+#######################
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.yandex.ru'
+EMAIL_PORT = 465
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True
+EMAIL_HOST_USER = 'gapeev.zahar@yandex.ru'
+EMAIL_HOST_PASSWORD = 'cswjhzlsejtdgwee'
+DEFAULT_FROM_EMAIL = 'gapeev.zahar@yandex.ru'
+
+DOMAIN = os.environ['DOMAIN']
+SITE_NAME = "MyDudes"
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -116,39 +141,77 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
 
+# Custom backend
+AUTHENTICATION_BACKENDS = [
+    'social_core.backends.vk.VKOAuth2',  # бекенд авторизации через ВКонтакте
+    'django.contrib.auth.backends.ModelBackend',  # бекенд аутентификации, для авторизации через логин и пароль
+]
+
 ###########################
 # DJANGO REST FRAMEWORK
 ###########################
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
-    ]
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
 }
 
 #######################
 # DJOSER
 #######################
 DJOSER = {
-    'PASSWORD_RESET_CONFIRM_URL': 'password-reset/{uid}/{token}',
+    'PASSWORD_RESET_CONFIRM_URL': '#/password/reset/confirm/{uid}/{token}',
+    # 'USERNAME_RESET_CONFIRM_URL': '#/username/reset/confirm/{uid}/{token}',
+    'ACTIVATION_URL': '#/activate/{uid}/{token}',
     'SEND_ACTIVATION_EMAIL': True,
-    'ACTIVATION_URL': 'activation/{uid}/{token}',
-    'USER_CREATE_PASSWORD_RETYPE': True,
-    'PASSWORD_RESET_CONFIRM_RETYPE': True,
-    'TOKEN_MODEL': None,
+    'SERIALIZERS': {},
 }
 
+######################
+# AUTH COOKIE
+######################
+'''
+AUTH_COOKIE = 'access'
+AUTH_COOKIE_MAX_AGE = 60 * 60 * 24
+AUTH_COOKIE_SECURE = os.environ.get('AUTH_COOKIE_SECURE', 'True') == 'True'
+AUTH_COOKIE_HTTP_ONLY = True
+AUTH_COOKIE_PATH = '/'
+AUTH_COOKIE_SAMESITE = 'None'
+
+SOCIAL_AUTH_VK_OAUTH2_KEY = os.environ['SOCIAL_AUTH_VK_OAUTH2_KEY']
+SOCIAL_AUTH_VK_OAUTH2_SECRET = os.environ['SOCIAL_AUTH_VK_OAUTH2_SECRET']
+SOCIAL_AUTH_VK_OAUTH2_SCOPE = [
+    'phone_number',
+    'email',
+]
+'''
+
+
+######################
+# CORS HEADERS
+######################
+CORS_ORIGIN_WHITELIST = [
+    "http://localhost:8080",
+    "http://localhost:8081",
+    "http://127.0.0.1:8000",
+    "http://127.0.0.1:4200",
+    "http://localhost:1313",
+    "http://localhost:4200",
+]
+
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
-    'ROTATE_REFRESH_TOKENS': True,
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60*24),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': True,
+
     'ALGORITHM': 'HS256',
     'SIGNING_KEY': SECRET_KEY,
     'VERIFYING_KEY': None,
     'AUDIENCE': None,
     'ISSUER': None,
 
-    'AUTH_HEADER_TYPES': ('Bearer',),
+    'AUTH_HEADER_TYPES': ('JWT',),
     'USER_ID_FIELD': 'id',
     'USER_ID_CLAIM': 'user_id',
 
@@ -158,17 +221,8 @@ SIMPLE_JWT = {
     'JTI_CLAIM': 'jti',
 
     'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
-    'SLIDING_TOKEN_LIFETIME': timedelta(minutes=1),
-    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=7),
+    'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
+    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
 
-# Email settings
-
-EMAIL_HOST = 'smtp.yandex.ru'
-EMAIL_PORT = 465
-EMAIL_USE_TLS = False
-EMAIL_USE_SSL = True
-
-EMAIL_HOST_USER = 'gapeev.zahar@yandex.ru'
-EMAIL_HOST_PASSWORD = 'cswjhzlsejtdgwee'
-DEFAULT_FROM_EMAIL = 'gapeev.zahar@yandex.ru'
+# LOGIN_REDIRECT_URL = reverse_lazy("web:profile")
