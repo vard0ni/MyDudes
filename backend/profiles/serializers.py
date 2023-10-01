@@ -4,9 +4,12 @@ from users.models import User
 
 
 class UserSerializer(serializers.ModelSerializer):
+    # определяем метаданные для сериализатора
     class Meta:
         model = User
+        # ref_name - это альтернативное имя для User, которое будет использоваться при генерации документации API
         ref_name = 'ProfileUser'
+        # список полей модели, которые необходимо исключить из сериализованного вывода
         exclude = (
             "password",
             "is_active",

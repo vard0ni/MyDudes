@@ -24,7 +24,7 @@ urlpatterns = [
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 
     path('wall/', include('wall.urls')),
-    #path('feed/', include('feed.urls')),
+    path('feed/', include('feed.urls')),
     path('follower/', include('followers.urls')),
     path('', include('profiles.urls')),
     #path('auth/', include('users.urls')),

@@ -8,11 +8,12 @@ from profiles.models import Profile
 from django.core.exceptions import ObjectDoesNotExist
 
 
-# сериализаторы drf = формы djnago
+# сериализаторы drf = формы django
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         ref_name = 'DjoserUser'
+        # определяем, какие поля модели User будут сериализованы.
         fields = ('id', 'phone', 'email')
 
 
@@ -60,6 +61,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         model = User
         fields = ('phone', 'email', 'password', 'password2')
 
+    # Пароли валидируются и проверяются на соответствие
     def validate(self, attrs):
         if attrs['password'] != attrs['password2']:
             raise serializers.ValidationError(
@@ -67,6 +69,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
         return attrs
 
+    # создается новый пользователь
     def create(self, validated_data):
         user = User.objects.create(
             phone=validated_data['phone'],
